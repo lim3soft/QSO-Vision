@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors><certificates src="system"/></trust-anchors>
+    </base-config>
+    <!-- Android 7.0 lacks ISRG roots. Only official BrandMeister hosts get
+         these public CA anchors; normal validity/hostname checks still apply. -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">brandmeister.network</domain>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="@raw/isrg_roots"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,16 @@
+.gradle/
+build/
+**/build/
+.idea/
+*.iml
+local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+/qso-browser-check/node_modules/
+/qso-browser-check/*.log
+.cxx/
+/app/.cxx/
+/app/release/
+/app/debug/

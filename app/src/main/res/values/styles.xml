@@ -1,0 +1,1 @@
+<resources><style name="Theme.QsoVision" parent="Theme.Material3.Dark.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:colorAccent">#00E5FF</item><item name="android:navigationBarColor">#050A13</item><item name="android:statusBarColor">#050A13</item><item name="android:windowLightStatusBar">false</item></style></resources>

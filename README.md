@@ -1,0 +1,51 @@
+# MMDVM QSO Vision
+
+## License
+
+QSO Vision source code is licensed under the Apache License 2.0. See
+[LICENSE](LICENSE), [NOTICE](NOTICE), and
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for dependency and
+attribution information.
+
+## Version 1.1 — current behavior
+
+See [TESTING-1.1.md](TESTING-1.1.md) for the current single-talkgroup implementation.
+Hoseline runs behind the native dashboard with optional in-app player controls.
+Mute stops its WebView; unmute reloads the selected talkgroup. No system volume is changed.
+The local clock includes seconds. Live native PTT metadata is **not connected**.
+Demo is now explicitly opt-in; demo callsigns and filtered demo history are never presented as live traffic.
+The older dual-channel notes below describe previous development and are superseded by this version.
+
+An Android 7.0+ Kotlin dashboard for read-only BrandMeister monitoring. The default build is deliberately honest about upstream capabilities: the included `DemoQsoProvider` is visibly labeled DEMO and exists for UI/lifecycle verification. Replace it with an authorized adapter that emits validated QSO events; no fabricated public BrandMeister realtime endpoint is used.
+
+## Build
+
+With Android SDK/Gradle available:
+
+```bash
+./gradlew clean assembleDebug
+```
+
+APK: `app/build/outputs/apk/debug/app-debug.apk`
+
+For a release, create a keystore outside source control, add a `signingConfigs` block in `app/build.gradle.kts` (prefer Gradle properties or environment variables), then run `./gradlew assembleRelease`. Never commit the keystore or API tokens.
+
+## Integration boundary
+
+BrandMeister documents user API keys for account/hotspot operations and documents Hoseline as a web-based talkgroup audio player. The public documentation reviewed for this project does not define a public realtime Last Heard/PTT event API or a native audio-stream contract. Therefore:
+
+* Audio fallback is the official URL `https://hose.brandmeister.network/?subscribe=<TG>` opened by the user; the app does not scrape or bypass it.
+* Metadata is abstracted behind `QsoProvider`. A production adapter should consume an authorized/local MMDVM or hotspot event feed and confirm start/end events before updating the UI.
+* Country resolution is conservative and returns a globe when the offline prefix set cannot resolve a callsign; it must be expanded from a licensed/maintained prefix dataset before release.
+
+## Dual-channel monitoring
+
+The dashboard now creates two independent `TalkgroupSession` flows (TG1 defaults to 46020, TG2 to 91). Each session has its own talkgroup, active event, connection state, history identity, and mute flag. Muting only changes the session's audio state and never cancels its metadata flow. Long-press either panel to change its talkgroup; duplicate IDs are rejected. The demo provider emits clearly labeled simulated events for both channels.
+
+Native dual audio is not falsely claimed. The app now uses selectable single-audio-monitor mode: selecting TG1 automatically disables TG2 audio, and selecting TG2 automatically disables TG1 audio. Both metadata sessions and histories continue regardless of the audio selection. Use the official Hoseline web player as the documented fallback. If an authorized provider later supports mixing, this policy can be replaced behind the audio controller.
+
+## Current scope / known limitations
+
+This checked-in baseline provides a responsive dark dashboard, talkgroup switching, lifecycle-safe ViewModel state, a 500-item in-memory history cap, conservative country display, and the provider seam. Room persistence, foreground audio service, CSV export, settings, signed artifacts, and physical API-24/current-device smoke testing remain dependent on an Android SDK/Gradle environment and a validated authorized event source. The current workspace had no Android SDK or Gradle installation available, so no APK build or live BrandMeister audio test is claimed.
+
+The official Hoseline behavior and API-key boundary are documented by BrandMeister: https://help.brandmeister.network/last-heard-dash/hoseline/ and https://help.brandmeister.network/hotspots/api-manager/.

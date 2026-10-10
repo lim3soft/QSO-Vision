@@ -1,0 +1,1206 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Halligan API",
+        "description": "BrandMeister Dashboard Restfull API",
+        "version": "2.1.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.brandmeister.network/v2/"
+        }
+    ],
+    "paths": {
+        "/device": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Lists all devices seen on the network in the last day (repeaters & hotspots)",
+                "description": "This response is cached and is not real-time data; clients should not poll this endpoint more than once every 15 minutes.",
+                "operationId": "device.all",
+                "parameters": [
+                    {
+                        "name": "repeater",
+                        "in": "query",
+                        "description": "Only list 6-digit repeaters seen in the last 7 days",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DeviceIndex"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "unsupported query parameter"
+                    }
+                }
+            }
+        },
+        "/device/{id}": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Shows all info about the specified device id",
+                "operationId": "device.byID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Device"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/device/{id}/profile": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Shows profile of the specified device id",
+                "description": "Shows the repeater configuration as known by the last master the repeater was/is connected to. This is not real-time data; clients should not poll this endpoint more than once per minute.",
+                "operationId": "device.profile",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeviceProfile"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/device/byCall": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Shows list of devices by callsign",
+                "operationId": "device.byCall",
+                "parameters": [
+                    {
+                        "name": "callsign",
+                        "in": "query",
+                        "description": "Callsign of the devices",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Device"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/device/{id}/talkgroup": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Shows all static talkgroups of the specified device id",
+                "operationId": "device.getTalkgroups",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StaticTalkgroup"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Create a static talkgroup on a device",
+                "operationId": "device.addTalkgroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Device talkgroup object to be added",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Talkgroup"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaticTalkgroup"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/talkgroup/{slot}/{group}": {
+            "delete": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Delete a static talkgroup from a device/slot",
+                "operationId": "device.removeTalkgroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "slot",
+                        "in": "path",
+                        "description": "Timeslot",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "group",
+                        "in": "path",
+                        "description": "Talkgroup",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/action/getRepeater": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Shows all information known by the master about the repeater",
+                "operationId": "device.getRepeater",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/getRepeater"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/action/dropCallRoute/{slot}": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Drop the current incomming call from the network on this slot",
+                "operationId": "device.dropCall",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "slot",
+                        "in": "path",
+                        "description": "Timeslot of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/output"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/action/dropDynamicGroups/{slot}": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Remove all dynamic subscriptions from this slot",
+                "operationId": "device.dropDynamic",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "slot",
+                        "in": "path",
+                        "description": "Timeslot of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/output"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/action/dropAutoStaticGroup": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Remove auto static TG",
+                "operationId": "device.dropAutoStatic",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/output"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/action/removeContext": {
+            "get": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Reset the device connection",
+                "operationId": "device.disconnect",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/output"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/device/{id}/devicepassword": {
+            "put": {
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Set device password",
+                "operationId": "device.setDevicePassword",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the device",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/password"
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/master": {
+            "get": {
+                "tags": [
+                    "Master"
+                ],
+                "summary": "Lists all master servers that are publicly available",
+                "operationId": "master.all",
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Master"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/{id}": {
+            "get": {
+                "tags": [
+                    "Master"
+                ],
+                "summary": "Shows more details about the requested master",
+                "operationId": "master.byID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the master",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Master"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/registry/{id}": {
+            "get": {
+                "tags": [
+                    "Registry"
+                ],
+                "summary": "Get a registry profile",
+                "description": "This response is cached and is not real-time data; clients should not poll this endpoint more than once per minute.",
+                "operationId": "registry.show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/registry/byCall/{call}": {
+            "get": {
+                "tags": [
+                    "Registry"
+                ],
+                "summary": "Get registry profiles",
+                "description": "This response is cached and is not real-time data; clients should not poll this endpoint more than once per minute.",
+                "operationId": "registry.byCall",
+                "parameters": [
+                    {
+                        "name": "call",
+                        "in": "path",
+                        "description": "Callsign of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/selfcare/{id}": {
+            "get": {
+                "tags": [
+                    "Selfcare"
+                ],
+                "summary": "Get a selfcare profile",
+                "description": "Display the specified resource.",
+                "operationId": "selfcare.show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/selfcare/byCall": {
+            "get": {
+                "tags": [
+                    "Selfcare"
+                ],
+                "summary": "Get a selfcare profile",
+                "description": "Display the specified resources by call.",
+                "operationId": "selfcare.byCall",
+                "parameters": [
+                    {
+                        "name": "callsign",
+                        "in": "query",
+                        "description": "Callsign of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/selfcare/{id}/devicepassword": {
+            "put": {
+                "tags": [
+                    "Selfcare"
+                ],
+                "summary": "Set device password",
+                "operationId": "selfcare.setDevicePassword",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/password"
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/talkgroup": {
+            "get": {
+                "tags": [
+                    "Talkgroup"
+                ],
+                "summary": "List all talkgroups",
+                "description": "Display the specified resource.",
+                "operationId": "talkgroup.all",
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/talkgroup/{id}": {
+            "get": {
+                "tags": [
+                    "Talkgroup"
+                ],
+                "summary": "List talkgroup",
+                "description": "Display the specified resource.",
+                "operationId": "talkgroup.byID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the talkgroup",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "StaticTalkgroup": {
+                "required": [
+                    "talkgroup"
+                ],
+                "properties": {
+                    "talkgroup": {
+                        "description": "Talkgroup",
+                        "type": "integer"
+                    },
+                    "repeaterid": {
+                        "description": "ID of the repeater",
+                        "type": "integer"
+                    },
+                    "slot": {
+                        "description": "Timeslot the group is subscribed to",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Talkgroup": {
+                "required": [
+                    "talkgroup"
+                ],
+                "properties": {
+                    "talkgroup": {
+                        "description": "Talkgroup",
+                        "type": "integer"
+                    },
+                    "slot": {
+                        "description": "Timeslot",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "DeviceProfile": {
+                "title": "Device Profile",
+                "properties": {
+                    "blockedGroups": {
+                        "description": "Array of groups that are blocked",
+                        "type": "object"
+                    },
+                    "staticSubscriptions": {
+                        "description": "Array of static talkgroup subscriptions",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StaticTalkgroup"
+                        }
+                    },
+                    "dynamicSubscriptions": {
+                        "description": "Array of dynamic talkgroup subscriptions",
+                        "type": "object"
+                    },
+                    "timedSubscriptions": {
+                        "description": "Array of timed talkgroup subscriptions",
+                        "type": "object"
+                    },
+                    "clusters": {
+                        "description": "Array of cluster subscriptions",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DeviceIndex": {
+                "title": "Device list item",
+                "properties": {
+                    "id": {
+                        "description": "ID of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "lastKnownMaster": {
+                        "description": "Master ID the device was seen on last",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "callsign": {
+                        "description": "Device callsign",
+                        "type": "string"
+                    },
+                    "linkname": {
+                        "description": "Device Link Name",
+                        "type": "string"
+                    },
+                    "hardware": {
+                        "description": "Device Hardware",
+                        "type": "string"
+                    },
+                    "firmware": {
+                        "description": "Device Firmware",
+                        "type": "string"
+                    },
+                    "tx": {
+                        "description": "Transmit Frequency in Mhz",
+                        "type": "string"
+                    },
+                    "rx": {
+                        "description": "Receive Frequency in Mhz",
+                        "type": "string"
+                    },
+                    "colorcode": {
+                        "description": "Color code of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "status": {
+                        "description": "Link state of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "lat": {
+                        "description": "Latitude location of repeater in degrees",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "lng": {
+                        "description": "Longitude location of repeater in degrees",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "city": {
+                        "description": "City the device is located in",
+                        "type": "string"
+                    },
+                    "pep": {
+                        "description": "Peak Envelope Power in Watt",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "agl": {
+                        "description": "Antenna height above the ground in meters",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "last_seen": {
+                        "description": "Last seen timestamp",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "getRepeater": {
+                "properties": {
+                    "contextID": {
+                        "description": "Device context-id",
+                        "type": "string"
+                    },
+                    "ip": {
+                        "description": "Device IP",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "Device ID",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "output": {
+                "properties": {
+                    "output": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "password": {
+                "title": "Password object",
+                "properties": {
+                    "password": {
+                        "description": "Password",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Device": {
+                "required": [
+                    "id",
+                    "callsign",
+                    "lastKnownMaster"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "lastKownMaster": {
+                        "description": "Master ID the device was seen on last",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "callsign": {
+                        "description": "Device callsign",
+                        "type": "string"
+                    },
+                    "linkname": {
+                        "description": "Device Link Name",
+                        "type": "string"
+                    },
+                    "hardware": {
+                        "description": "Device Hardware",
+                        "type": "string"
+                    },
+                    "firmware": {
+                        "description": "Device Firmware",
+                        "type": "string"
+                    },
+                    "tx": {
+                        "description": "Transmit Frequency in Mhz",
+                        "type": "string"
+                    },
+                    "rx": {
+                        "description": "Receive Frequency in Mhz",
+                        "type": "string"
+                    },
+                    "colorcode": {
+                        "description": "Color code of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "status": {
+                        "description": "Link state of the device",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "lat": {
+                        "description": "Latitude location of repeater in degrees",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "lng": {
+                        "description": "Londitude location of repeater in degrees",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "city": {
+                        "description": "City the device is located in",
+                        "type": "string"
+                    },
+                    "website": {
+                        "description": "Website of the device (if any)",
+                        "type": "string"
+                    },
+                    "pep": {
+                        "description": "Peak Evelope Power in Watt",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "agl": {
+                        "description": "Antenna height above the ground in meters",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "priorityDescription": {
+                        "description": "Priority Description (if any)",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description (if any)",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "Last updated timestamp",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Created timestamp",
+                        "type": "string"
+                    },
+                    "last_seen": {
+                        "description": "Last seen timestamp",
+                        "type": "string"
+                    },
+                    "permissions": {
+                        "description": "Permissions",
+                        "type": "object"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "Device"
+                }
+            },
+            "Master": {
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "Master"
+                }
+            }
+        },
+        "requestBodies": {
+            "password": {
+                "description": "Password Object",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/password"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "api_key": {
+                "type": "http",
+                "description": "API Key, sent as 'Authorization: Bearer xxx' header",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Device",
+            "description": "Everything about your Device (Hotspot/Repeater)"
+        },
+        {
+            "name": "Master",
+            "description": "Everything about the Master"
+        },
+        {
+            "name": "Talkgroup",
+            "description": "Talkgroup operations"
+        },
+        {
+            "name": "Selfcare",
+            "description": "User Self-Care."
+        },
+        {
+            "name": "Registry",
+            "description": "Registry lookups"
+        }
+    ]
+}
