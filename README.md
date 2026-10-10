@@ -52,12 +52,6 @@ BrandMeister documents user API keys for account/hotspot operations and document
 * Metadata is abstracted behind `QsoProvider`. A production adapter should consume an authorized/local MMDVM or hotspot event feed and confirm start/end events before updating the UI.
 * Country resolution is conservative and returns a globe when the offline prefix set cannot resolve a callsign; it must be expanded from a licensed/maintained prefix dataset before release.
 
-## Dual-channel monitoring
-
-The dashboard now creates two independent `TalkgroupSession` flows (TG1 defaults to 46020, TG2 to 91). Each session has its own talkgroup, active event, connection state, history identity, and mute flag. Muting only changes the session's audio state and never cancels its metadata flow. Long-press either panel to change its talkgroup; duplicate IDs are rejected. The demo provider emits clearly labeled simulated events for both channels.
-
-Native dual audio is not falsely claimed. The app now uses selectable single-audio-monitor mode: selecting TG1 automatically disables TG2 audio, and selecting TG2 automatically disables TG1 audio. Both metadata sessions and histories continue regardless of the audio selection. Use the official Hoseline web player as the documented fallback. If an authorized provider later supports mixing, this policy can be replaced behind the audio controller.
-
 ## Current scope / known limitations
 
 This checked-in baseline provides a responsive dark dashboard, talkgroup switching, lifecycle-safe ViewModel state, a 500-item in-memory history cap, conservative country display, and the provider seam. Room persistence, foreground audio service, CSV export, settings, signed artifacts, and physical API-24/current-device smoke testing remain dependent on an Android SDK/Gradle environment and a validated authorized event source. The current workspace had no Android SDK or Gradle installation available, so no APK build or live BrandMeister audio test is claimed.
