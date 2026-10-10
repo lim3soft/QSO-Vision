@@ -14,6 +14,36 @@ status, changes, and APK downloads.
 | 1.3.1 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.1.apk) |
 | 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
 
+## Release changelog
+
+### 1.3.2a build 6
+
+- Added responsive 70:30 landscape layout for current QSO and recent history.
+- Moved `by 9W3SPY` beside the QSO Vision title.
+- Added full-screen landscape status-bar handling.
+- Improved action-button alignment and history scrolling.
+- Fixed the landscape view reparenting crash.
+- Removed the obsolete 30-second lock-screen option.
+- Removed GeckoView to keep the APK lightweight.
+
+### 1.3.1
+
+- Refined toolbar and action controls.
+- Improved screen dimming and monitoring controls.
+- Preserved BrandMeister metadata and Hoseline audio behavior.
+
+### 1.3
+
+- Improved metadata filtering, audio handling, browser compatibility, and
+  connection diagnostics.
+
+### 1.2 and 1.1
+
+- Added talkgroup selection persistence, current/last-heard filtering, QSO
+  history rendering, WebView Hoseline fallback, and lifecycle/audio handling.
+
+The complete dated record is available in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 QSO Vision source code is licensed under the Apache License 2.0. See
