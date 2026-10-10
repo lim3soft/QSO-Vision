@@ -1,5 +1,7 @@
 # QSO Vision changelog
 
+For the version-to-source and APK mapping, see [docs/VERSION-MAP.md](docs/VERSION-MAP.md).
+
 This changelog is reconstructed from the retained Codex project trace,
 workspace notes, APK filenames, and verified implementation changes. Entries
 marked as reconstructed do not represent a preserved historical source tree.

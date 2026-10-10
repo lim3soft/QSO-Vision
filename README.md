@@ -1,5 +1,19 @@
 # MMDVM QSO Vision
 
+## Versions and downloads
+
+See [VERSION-MAP.md](docs/VERSION-MAP.md) for the version-by-version source
+status, changes, and APK downloads.
+
+| Version | APK |
+|---|---|
+| 1.0 | No preserved APK; reconstructed from the original project trace |
+| 1.1 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-before-1.3.apk) |
+| 1.2 | No separately preserved APK |
+| 1.3 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.apk) |
+| 1.3.1 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.1.apk) |
+| 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
+
 ## License
 
 QSO Vision source code is licensed under the Apache License 2.0. See
