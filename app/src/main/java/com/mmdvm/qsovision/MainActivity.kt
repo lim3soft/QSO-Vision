@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
     private val vm by viewModels<QsoViewModel>()
@@ -66,12 +67,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var metadataStatus: TextView
     private val metadataScript by lazy { assets.open("lastheard.js").bufferedReader().use { it.readText() } }
 
-    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+    /**
+     * Scale the dashboard for compact phones.  Android density alone is not
+     * enough: two phones can report the same density while having very
+     * different usable widths. Keep normal devices unchanged and only reduce
+     * spacing/control sizes when the available width is genuinely small.
+     */
+    private val layoutScale: Float
+        get() {
+            val metrics = resources.displayMetrics
+            val widthDp = metrics.widthPixels / metrics.density
+            return (widthDp / 360f).coerceIn(0.72f, 1f)
+        }
+    private fun dp(value: Int) = (value * resources.displayMetrics.density * layoutScale).roundToInt()
+    // Use physical density, not scaledDensity, so the phone's accessibility
+    // font-size preference cannot make the dashboard clip on compact screens.
+    private fun textPx(value: Float) = value * resources.displayMetrics.density * layoutScale
     private fun isLandscape() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     private fun label(value: String, size: Float = 14f, color: Int = Color.WHITE) =
-        TextView(this).apply { text = value; textSize = size; setTextColor(color); setPadding(dp(10), dp(6), dp(10), dp(6)) }
+        TextView(this).apply { text = value; setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx(size)); setTextColor(color); setPadding(dp(10), dp(6), dp(10), dp(6)) }
     private fun button(value: String, action: () -> Unit) = MaterialButton(this).apply {
-        text = value; isAllCaps = false; textSize = 13f
+        text = value; isAllCaps = false; setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx(13f))
         cornerRadius = dp(16); strokeWidth = dp(1)
         strokeColor = ColorStateList.valueOf(0xff2b91ae.toInt())
         backgroundTintList = ColorStateList.valueOf(0xff12374b.toInt())
@@ -177,7 +193,7 @@ class MainActivity : AppCompatActivity() {
         }
         column.addView(header)
         val selector = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        input = EditText(this).apply { inputType = 2; textSize = 16f; setPadding(dp(4), 0, dp(4), 0); setSingleLine(); setText(vm.selected.value.toString()); hint = "TG"; contentDescription = "Talkgroup number" }
+        input = EditText(this).apply { inputType = 2; setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx(16f)); setPadding(dp(4), 0, dp(4), 0); setSingleLine(); setText(vm.selected.value.toString()); hint = "TG"; contentDescription = "Talkgroup number" }
         selector.addView(input, LinearLayout.LayoutParams(0, dp(56), 1f))
         fun addControl(control: MaterialButton) = selector.addView(control,
             LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(4) })
@@ -199,7 +215,8 @@ class MainActivity : AppCompatActivity() {
         column.addView(selector)
         val card = panel()
         headline = label("", 60f).apply { gravity = Gravity.CENTER; maxLines = 1; setTypeface(typeface, Typeface.BOLD) }
-        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(headline, 18, 72, 2, android.util.TypedValue.COMPLEX_UNIT_SP)
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(headline,
+            textPx(18f).roundToInt(), textPx(72f).roundToInt(), 2, android.util.TypedValue.COMPLEX_UNIT_PX)
         card.addView(headline, LinearLayout.LayoutParams(-1, dp(130)))
         details = label("").apply { gravity = Gravity.CENTER }; card.addView(details)
         clock = label("", 24f, Color.CYAN).apply { gravity = Gravity.CENTER }; card.addView(clock)

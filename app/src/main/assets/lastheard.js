@@ -4,7 +4,10 @@
   try {
     const root = document.querySelector('#query-builder');
     if (!root) return result;
-    let rule = root.querySelector('.rules-group-body .rules-list .rule-container');
+    // BrandMeister changed the query-builder wrapper from
+    // `.rules-group-body` to `.rules-group-container`. Support both DOMs so
+    // older and current WebView page versions can prepare the filter.
+    let rule = root.querySelector('.rules-list .rule-container');
     if (!rule) {
       const add = Array.from(root.querySelectorAll('button')).find(b => b.textContent.trim() === 'Rule');
       if (add) add.click();
@@ -32,12 +35,21 @@
       result.status = 'Applying TG ' + wanted;
       return result;
     }
-    const table = document.querySelector('#lhTable');
+    // Prefer the known table, then discover a likely Last Heard table by its
+    // column names. BrandMeister has changed IDs and wrappers in the past.
+    const table = document.querySelector('#lhTable') || Array.from(document.querySelectorAll('table')).find(t => {
+      const text = Array.from(t.querySelectorAll('thead th')).map(e => e.textContent.trim().toLowerCase());
+      return text.some(h => /my call|source/.test(h)) && text.some(h => /destination|talkgroup/.test(h));
+    });
     if (!table) { result.status = 'Waiting for Last Heard table'; return result; }
     const headers = Array.from(table.querySelectorAll('thead th')).map(e => e.textContent.trim().toLowerCase());
+    const findHeader = names => headers.findIndex(h => names.some(name => h === name || h.indexOf(name) >= 0));
     const index = name => headers.findIndex(h => h === name);
-    const callIndex = index('my call'), destIndex = index('destination');
+    const callIndex = findHeader(['my call', 'source call', 'source', 'callsign', 'call sign']);
+    const destIndex = findHeader(['destination', 'talkgroup', 'destination id']);
     if (callIndex < 0 || destIndex < 0) { result.status = 'Last Heard columns changed'; return result; }
+    const timeIndex = findHeader(['time', 'age', 'last heard']);
+    const durationIndex = findHeader(['duration', 'length']);
     Array.prototype.forEach.call(table.querySelectorAll('tbody tr'), row => {
       const cells = row.querySelectorAll('td');
       if (cells.length !== headers.length) return;
@@ -52,8 +64,8 @@
       if (!call) return;
       const flag = callCell.querySelector('[title], [aria-label]');
       const country = flag ? (flag.getAttribute('title') || flag.getAttribute('aria-label') || '') : '';
-      const text = name => { const i = index(name); return i >= 0 ? cells[i].textContent.trim() : ''; };
-      result.rows.push({call, country, tg: wanted, age: text('time'), duration: text('duration'), active: row.classList.contains('lh-row-active')});
+      const text = (i, fallback) => i >= 0 ? cells[i].textContent.trim() : fallback;
+      result.rows.push({call, country, tg: wanted, age: text(timeIndex, ''), duration: text(durationIndex, ''), active: row.classList.contains('lh-row-active') || /active|on.?air/i.test(row.textContent)});
     });
     result.status = 'BrandMeister • TG ' + wanted + ' • ' + result.rows.length + ' records';
   } catch (e) { result.status = 'Metadata error: ' + e.message; }

@@ -21,6 +21,14 @@ marked as reconstructed do not represent a preserved historical source tree.
 - Fixed the landscape reparenting crash by capturing views before moving them.
 - Added Apache-2.0 project licensing and third-party license documentation.
 
+## 2026-10-12 — 1.3.3 build 7
+
+- Added resilient BrandMeister Last Heard table and column discovery after DOM changes.
+- Added explicit metadata structure diagnostics instead of silently showing empty history.
+- Added physical-resolution and density-aware dashboard scaling for compact phones.
+- Added orientation-aware sizing while ignoring the device accessibility font-scale setting.
+- Retained APK: `artifacts/QSO-Vision-1.3.3-build7.apk`.
+
 ## 2026-10-09 — 1.3.2a build 6
 
 - Removed the experimental GeckoView dependency after APK size review.
