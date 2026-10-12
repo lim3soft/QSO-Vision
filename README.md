@@ -15,6 +15,14 @@ status, changes, and APK downloads.
 | 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
 | 1.3.3 build 7 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3-build7.apk) |
 
+## Screenshots
+
+Captured from the `1.3.3 build 7` Android emulator run:
+
+| Portrait | Landscape |
+|---|---|
+| ![QSO Vision portrait](docs/screenshots/qso-vision-1.3.3-portrait.png) | ![QSO Vision landscape](docs/screenshots/qso-vision-1.3.3-landscape.png) |
+
 ## Release changelog
 
 ### 1.3.3 build 7
