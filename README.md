@@ -1,4 +1,4 @@
-# MMDVM QSO Vision
+# QSO Vision
 
 ## Versions and downloads
 
@@ -13,8 +13,16 @@ status, changes, and APK downloads.
 | 1.3 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.apk) |
 | 1.3.1 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.1.apk) |
 | 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
+| 1.3.3 build 7 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3-build7.apk) |
 
 ## Release changelog
+
+### 1.3.3 build 7
+
+- Added resilient BrandMeister DOM and column discovery for callsign/history data.
+- Added metadata structure diagnostics when the upstream page changes.
+- Added physical-resolution and density-aware scaling for compact phones.
+- Added orientation-aware sizing while preserving the existing QSO layout.
 
 ### 1.3.2a build 6
 
