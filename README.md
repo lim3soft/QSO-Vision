@@ -17,11 +17,11 @@ status, changes, and APK downloads.
 
 ## Screenshots
 
-Captured from the `1.3.3 build 7` Android emulator run:
+Captured with TG 91 active:
 
 | Portrait | Landscape |
 |---|---|
-| ![QSO Vision portrait](docs/screenshots/qso-vision-1.3.3-portrait.png) | ![QSO Vision landscape](docs/screenshots/qso-vision-1.3.3-landscape.png) |
+| ![QSO Vision TG 91 portrait](docs/screenshots/qso-vision-tg91-portrait.png) | ![QSO Vision TG 91 landscape](docs/screenshots/qso-vision-tg91-landscape.png) |
 
 ## Release changelog
 
