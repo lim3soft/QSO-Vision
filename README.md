@@ -28,6 +28,10 @@ Captured with TG 91 active in QSO Vision:
 |---|---|
 | ![QSO Vision 1.3.3a TG 91 portrait](docs/screenshots/qso-vision-1.3.3a-tg91-portrait.png) | ![QSO Vision 1.3.3a TG 91 landscape](docs/screenshots/qso-vision-1.3.3a-tg91-landscape.png) |
 
+### Web version
+
+![QSO Vision web version](docs/screenshots/qso-vision-web.png)
+
 
 ## Release changelog
 
