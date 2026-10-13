@@ -5,10 +5,6 @@
 See [VERSION-MAP.md](docs/VERSION-MAP.md) for the version-by-version source
 status, changes, and APK downloads.
 
-## Web version
-
-Visit the [QSO Vision web version](https://qso.nightfall.monster).
-
 | Version | APK |
 |---|---|
 | 1.0 | No preserved APK; reconstructed from the original project trace |
@@ -27,11 +23,6 @@ Captured with TG 91 active in QSO Vision:
 | Portrait | Landscape |
 |---|---|
 | ![QSO Vision 1.3.3a TG 91 portrait](docs/screenshots/qso-vision-1.3.3a-tg91-portrait.png) | ![QSO Vision 1.3.3a TG 91 landscape](docs/screenshots/qso-vision-1.3.3a-tg91-landscape.png) |
-
-### Web version
-
-![QSO Vision web version](docs/screenshots/qso-vision-web.png)
-
 
 ## Release changelog
 
@@ -76,6 +67,12 @@ Captured with TG 91 active in QSO Vision:
   history rendering, WebView Hoseline fallback, and lifecycle/audio handling.
 
 The complete dated record is available in [CHANGELOG.md](CHANGELOG.md).
+
+## QSO Vision also available in Web version
+
+Visit the [QSO Vision web version](https://qso.nightfall.monster).
+
+![QSO Vision web version](docs/screenshots/qso-vision-web.png)
 
 ## License
 
