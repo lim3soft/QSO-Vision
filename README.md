@@ -18,7 +18,7 @@ status, changes, and APK downloads.
 
 ## Screenshots
 
-Captured with TG 91 active in QSO Vision `1.3.3a`:
+Captured with TG 91 active in QSO Vision:
 
 | Portrait | Landscape |
 |---|---|
