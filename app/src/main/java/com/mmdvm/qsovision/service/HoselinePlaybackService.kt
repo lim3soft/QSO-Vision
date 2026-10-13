@@ -79,7 +79,7 @@ class HoselinePlaybackService : Service() {
         failed = false
         wake = getSystemService(PowerManager::class.java).newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK, "QsoVision:audio").apply { acquire() }
-        update("Loading Hoseline • TG $tg", PlaybackState.STATE_BUFFERING)
+        update("Listening Hoseline • TG $tg", PlaybackState.STATE_BUFFERING)
         val web = WebView(applicationContext).apply {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true

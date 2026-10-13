@@ -52,6 +52,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var history: LinearLayout
     private lateinit var audioStatus: TextView
     private lateinit var muteButton: MaterialButton
+    private lateinit var historyButton: MaterialButton
+    private lateinit var compactToggle: MaterialButton
+    private lateinit var selector: LinearLayout
+    private var compactMode = false
     private val dimPolicy = ScreenDimPolicy { SystemClock.elapsedRealtime() }
     private lateinit var screenButton: MaterialButton
     private val dimTimes = intArrayOf(0, 30, 60, 300, -1)
@@ -64,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     private var metadataFailure: String? = null
     private var metadataStarted = SystemClock.elapsedRealtime()
     private var muted = false
+    private var historyLimit = 10
     private lateinit var metadataStatus: TextView
     private val metadataScript by lazy { assets.open("lastheard.js").bufferedReader().use { it.readText() } }
 
@@ -105,6 +110,11 @@ class MainActivity : AppCompatActivity() {
         insetTop = 0; insetBottom = 0; setPadding(dp(12), 0, dp(12), 0)
         describeIcon(this, description)
     }
+    private fun compactButton(value: String, description: String, action: () -> Unit) = button(value, action).apply {
+        minWidth = dp(42); minimumWidth = dp(42); minHeight = dp(42); minimumHeight = dp(42)
+        setPadding(dp(6), 0, dp(6), 0)
+        describeIcon(this, description)
+    }
     private fun describeIcon(view: MaterialButton, description: String) {
         view.contentDescription = description
         androidx.appcompat.widget.TooltipCompat.setTooltipText(view, description)
@@ -128,6 +138,8 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         vm.select(prefs.getInt("tg", 46020).coerceIn(1, 16777215))
         muted = prefs.getBoolean("muted", false)
+        historyLimit = prefs.getInt("historyLimit", 10).let { if (it in intArrayOf(10, 20, 50, 100)) it else 10 }
+        compactMode = prefs.getBoolean("compactMode", false)
         dimPolicy.modeSeconds = prefs.getInt("dimSeconds", 0)
         dimPolicy.reset()
         page = FrameLayout(this)
@@ -188,11 +200,13 @@ class MainActivity : AppCompatActivity() {
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            addView(titleView, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(authorView, LinearLayout.LayoutParams(-2, -2))
+            // Keep the author beside the title instead of consuming a
+            // separate far-right header area on wide screens.
+            addView(titleView, LinearLayout.LayoutParams(-2, -2))
+            addView(authorView, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(10) })
         }
         column.addView(header)
-        val selector = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        selector = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         input = EditText(this).apply { inputType = 2; setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx(16f)); setPadding(dp(4), 0, dp(4), 0); setSingleLine(); setText(vm.selected.value.toString()); hint = "TG"; contentDescription = "Talkgroup number" }
         selector.addView(input, LinearLayout.LayoutParams(0, dp(56), 1f))
         fun addControl(control: MaterialButton) = selector.addView(control,
@@ -214,14 +228,24 @@ class MainActivity : AppCompatActivity() {
         addControl(iconButton("Exit app", R.drawable.ic_exit) { exitApp() })
         column.addView(selector)
         val card = panel()
-        headline = label("", 60f).apply { gravity = Gravity.CENTER; maxLines = 1; setTypeface(typeface, Typeface.BOLD) }
+        headline = label("", 68f).apply { gravity = Gravity.CENTER; maxLines = 1; setTypeface(typeface, Typeface.BOLD) }
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(headline,
             textPx(18f).roundToInt(), textPx(72f).roundToInt(), 2, android.util.TypedValue.COMPLEX_UNIT_PX)
         card.addView(headline, LinearLayout.LayoutParams(-1, dp(130)))
         details = label("").apply { gravity = Gravity.CENTER }; card.addView(details)
         clock = label("", 24f, Color.CYAN).apply { gravity = Gravity.CENTER }; card.addView(clock)
         wave = ActivityWaveView(this); card.addView(wave, LinearLayout.LayoutParams(-1, dp(60)))
-        column.addView(card)
+        val cardContainer = FrameLayout(this)
+        cardContainer.addView(card, FrameLayout.LayoutParams(-1, -1))
+        compactToggle = compactButton("☰", "Expand QSO controls") { toggleCompactMode() }.apply {
+            backgroundTintList = ColorStateList.valueOf(0xff12374b.toInt())
+            elevation = dp(4).toFloat()
+        }
+        cardContainer.addView(compactToggle, FrameLayout.LayoutParams(dp(46), dp(46), Gravity.TOP or Gravity.END).apply {
+            topMargin = dp(6); marginEnd = dp(6)
+        })
+        compactToggle.bringToFront()
+        column.addView(cardContainer)
         metadataStatus = label(metadataFailure ?: "Connecting to BrandMeister", 12f, Color.CYAN)
         column.addView(metadataStatus)
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -244,8 +268,17 @@ class MainActivity : AppCompatActivity() {
                     catch (_: android.content.ActivityNotFoundException) { Toast.makeText(this, "Open device Settings, Apps, and check your WebView provider", Toast.LENGTH_LONG).show() }
                 }.show()
         }
-        column.addView(label("RECENT QSO HISTORY", 16f, Color.CYAN))
-        history = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }; column.addView(history)
+        val historyCard = panel()
+        val historyHeader = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        historyHeader.addView(label("RECENT QSO HISTORY", 16f, Color.CYAN), LinearLayout.LayoutParams(0, -2, 1f))
+        historyButton = compactButton(historyLimit.toString(), "History records: $historyLimit. Tap to change") { chooseHistorySize() }.apply {
+            describeIcon(this, "History records: $historyLimit. Tap to change")
+        }
+        historyHeader.addView(historyButton)
+        historyCard.addView(historyHeader)
+        history = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        historyCard.addView(history)
+        column.addView(historyCard)
         if (isLandscape()) {
             // Landscape is deliberately a two-pane dashboard: live QSO gets 70%,
             // while the history remains a readable top-to-bottom list.
@@ -254,26 +287,30 @@ class MainActivity : AppCompatActivity() {
             val currentPane = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 selector.gravity = Gravity.CENTER_VERTICAL or Gravity.END
+                setPadding(0, 0, dp(6), 0)
                 addView(selector, LinearLayout.LayoutParams(-1, dp(56)))
-                addView(card, LinearLayout.LayoutParams(-1, 0, 1f))
+                addView(cardContainer, LinearLayout.LayoutParams(-1, 0, 1f))
                 addView(metadataStatus, LinearLayout.LayoutParams(-1, -2))
                 addView(audioStatus, LinearLayout.LayoutParams(-1, -2))
             }
-            panes.addView(currentPane, LinearLayout.LayoutParams(0, -1, 0.7f))
-            val historyPane = ScrollView(this).apply { isFillViewport = true; addView(LinearLayout(this@MainActivity).apply {
-                orientation = LinearLayout.VERTICAL; setPadding(dp(8), 0, dp(8), 0)
-                addView(label("RECENT QSO HISTORY", 16f, Color.CYAN)); addView(history)
-            }) }
-            panes.addView(historyPane, LinearLayout.LayoutParams(0, -1, 0.3f))
+            panes.setPadding(dp(6), dp(4), dp(6), dp(4))
+            panes.addView(currentPane, LinearLayout.LayoutParams(0, -1, 0.7f).apply { marginEnd = dp(4) })
+            val historyPane = ScrollView(this).apply { isFillViewport = true; addView(historyCard) }
+            panes.addView(historyPane, LinearLayout.LayoutParams(0, -1, 0.3f).apply { marginStart = dp(4) })
             val landscape = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, 0, 0, 0); setBackgroundColor(0xff06111f.toInt()) }
             landscape.addView(header, LinearLayout.LayoutParams(-1, dp(52)))
             landscape.addView(panes, LinearLayout.LayoutParams(-1, 0, 1f))
             page.addView(landscape, FrameLayout.LayoutParams(-1, -1))
         } else {
-            val scroll = ScrollView(this).apply { isFillViewport = true; addView(column) }
-            page.addView(scroll, FrameLayout.LayoutParams(-1, -1))
+            column.removeView(historyCard)
+            val historyScroll = ScrollView(this).apply { isFillViewport = true; addView(historyCard) }
+            val portraitRoot = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(0xff06111f.toInt()) }
+            portraitRoot.addView(column, LinearLayout.LayoutParams(-1, -2))
+            portraitRoot.addView(historyScroll, LinearLayout.LayoutParams(-1, 0, 1f))
+            page.addView(portraitRoot, FrameLayout.LayoutParams(-1, -1))
         }
         setContentView(page)
+        applyCompactMode()
         applySystemBars()
         syncAudio()
         lifecycleScope.launch {
@@ -309,20 +346,20 @@ class MainActivity : AppCompatActivity() {
         headline.text = active?.call ?: "TG ${vm.selected.value}"
         headline.setTextColor(if (active != null) 0xffff8a18.toInt() else Color.WHITE)
         headline.setShadowLayer(if (active != null) dp(5).toFloat() else 0f, 0f, 0f, 0xffff6500.toInt())
-        details.text = if (active != null) "CURRENTLY ON AIR\n${active.country} • ${active.duration}" else "WAITING FOR QSO • LIVE LAST HEARD FILTER: TG ${vm.selected.value}"
-        clock.text = format("HH:mm:ss") + "\n" + format("EEE, dd MMM yyyy")
+        details.text = if (active != null) "CURRENTLY ON AIR\n${active.country} • ${active.duration}" else "Waiting QSO"
+        clock.text = format("HH:mm:ss • EEE, dd MMM yyyy")
         wave.active = active != null
         updateBrightness()
         renderHistory()
     }
 
     private fun renderHistory() {
-        val signature = "${vm.selected.value}:$heardHistory"
+        val signature = "${vm.selected.value}:$historyLimit:$heardHistory"
         if (signature == renderedHistory) return
         renderedHistory = signature
         history.removeAllViews()
         if (heardHistory.isEmpty()) history.addView(label("Waiting for BrandMeister Last Heard activity for TG ${vm.selected.value}..."))
-        heardHistory.forEach { e -> history.addView(label("${e.country} ${e.call} • TG ${e.tg}\nAge ${e.age} • Duration ${e.duration}${if (e.active) " • ON AIR" else ""}", 15f, if (e.active) 0xffff6a00.toInt() else Color.WHITE)) }
+        heardHistory.take(historyLimit).forEach { e -> history.addView(label("${e.country} ${e.call} • TG ${e.tg}\nAge ${e.age} • Duration ${e.duration}${if (e.active) " • ON AIR" else ""}", 15f, if (e.active) 0xffff6a00.toInt() else Color.WHITE)) }
     }
 
     private fun pollLastHeard() {
@@ -351,7 +388,7 @@ class MainActivity : AppCompatActivity() {
                 // Replace the source snapshot, avoiding duplicates as relative ages change.
                 if (entries.isNotEmpty()) {
                     heardHistory.clear()
-                    entries.filter { !it.active }.take(30).forEach { heardHistory.addLast(it) }
+                    entries.filter { !it.active }.take(100).forEach { heardHistory.addLast(it) }
                 }
                 android.util.Log.d("QsoMetadata", "TG=$tg rows=${entries.size} active=${liveHeard?.call ?: "idle"}")
                 render()
@@ -381,6 +418,40 @@ class MainActivity : AppCompatActivity() {
                 describeIcon(screenButton, "Screen dimming • ${dimLabels[which]}")
                 updateBrightness(); dialog.dismiss()
             }.setNegativeButton("Cancel", null).show()
+    }
+
+    private fun chooseHistorySize() {
+        val options = intArrayOf(10, 20, 50, 100)
+        PopupMenu(this, historyButton).apply {
+            options.forEach { size ->
+                menu.add("$size records").setOnMenuItemClickListener {
+                    historyLimit = size
+                    prefs.edit().putInt("historyLimit", historyLimit).apply()
+                    historyButton.text = historyLimit.toString()
+                    describeIcon(historyButton, "History records: $historyLimit. Tap to change")
+                    renderedHistory = ""
+                    renderHistory()
+                    true
+                }
+            }
+        }.show()
+    }
+
+    private fun toggleCompactMode() {
+        compactMode = !compactMode
+        prefs.edit().putBoolean("compactMode", compactMode).apply()
+        applyCompactMode()
+    }
+
+    /** Changes only native visibility; it never reloads the metadata WebView. */
+    private fun applyCompactMode() {
+        if (!::selector.isInitialized || !::compactToggle.isInitialized) return
+        selector.visibility = if (compactMode) View.GONE else View.VISIBLE
+        // Keep the trigger visually stable in both states; changing its glyph
+        // made it look like it had vanished on some landscape render passes.
+        compactToggle.text = "☰"
+        describeIcon(compactToggle, if (compactMode) "Expand QSO controls" else "Collapse QSO controls")
+        compactToggle.bringToFront()
     }
 
     private fun rotateScreen() {

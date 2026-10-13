@@ -15,6 +15,7 @@ project brief and source-generation trace are retained in Codex history.
 | 1.3.1 | Current source lineage documented in `docs/toolbar-1.3.1.md` | [1.3.1 APK](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.1.apk) | Toolbar and control refinements; version code 5 |
 | 1.3.2a build 6 | [Current source](https://github.com/lim3soft/QSO-Vision/tree/main) | [1.3.2a APK](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) | 70:30 landscape layout, rotation control, full-screen landscape, licensing, crash fixes |
 | 1.3.3 build 7 | [Current source](https://github.com/lim3soft/QSO-Vision/tree/main) | [1.3.3 APK](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3-build7.apk) | BrandMeister DOM-resilient callsign/history extraction, structure diagnostics, physical-resolution scaling for compact screens, orientation-aware sizing |
+| 1.3.3a build 8 | [Current source](https://github.com/lim3soft/QSO-Vision/tree/main) | Pending APK upload | Fixed stale live callsigns by requiring a recent active-row signal and timestamp |
 
 ## Codex source trace
 

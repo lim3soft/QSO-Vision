@@ -50,6 +50,16 @@
     if (callIndex < 0 || destIndex < 0) { result.status = 'Last Heard columns changed'; return result; }
     const timeIndex = findHeader(['time', 'age', 'last heard']);
     const durationIndex = findHeader(['duration', 'length']);
+    const secondsSinceHeard = value => {
+      const text = String(value || '').toLowerCase().trim();
+      if (!text || /now|just/.test(text)) return 0;
+      const match = text.match(/(\d+)\s*(s|sec|second|m|min|minute|h|hour)/);
+      if (!match) return Number.MAX_SAFE_INTEGER;
+      const amount = Number(match[1]);
+      if (/^s|sec|second/.test(match[2])) return amount;
+      if (/^m|min|minute/.test(match[2])) return amount * 60;
+      return amount * 3600;
+    };
     Array.prototype.forEach.call(table.querySelectorAll('tbody tr'), row => {
       const cells = row.querySelectorAll('td');
       if (cells.length !== headers.length) return;
@@ -65,7 +75,12 @@
       const flag = callCell.querySelector('[title], [aria-label]');
       const country = flag ? (flag.getAttribute('title') || flag.getAttribute('aria-label') || '') : '';
       const text = (i, fallback) => i >= 0 ? cells[i].textContent.trim() : fallback;
-      result.rows.push({call, country, tg: wanted, age: text(timeIndex, ''), duration: text(durationIndex, ''), active: row.classList.contains('lh-row-active') || /active|on.?air/i.test(row.textContent)});
+      const age = text(timeIndex, '');
+      // Do not infer live state from row text: stale rows can retain labels
+      // after PTT ends. Only the page's active-row marker plus a recent
+      // Last Heard timestamp qualifies as CURRENTLY ON AIR.
+      const active = row.classList.contains('lh-row-active') && secondsSinceHeard(age) <= 30;
+      result.rows.push({call, country, tg: wanted, age, duration: text(durationIndex, ''), active});
     });
     result.status = 'BrandMeister • TG ' + wanted + ' • ' + result.rows.length + ' records';
   } catch (e) { result.status = 'Metadata error: ' + e.message; }

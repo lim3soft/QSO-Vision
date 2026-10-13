@@ -1,7 +1,7 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id("org.jetbrains.kotlin.kapt") }
 
 android { namespace = "com.mmdvm.qsovision"; compileSdk = 35
-    defaultConfig { applicationId = "com.mmdvm.qsovision"; minSdk = 24; targetSdk = 35; versionCode = 7; versionName = "1.3.3" }
+    defaultConfig { applicationId = "com.mmdvm.qsovision"; minSdk = 24; targetSdk = 35; versionCode = 8; versionName = "1.3.3a" }
     buildTypes { release { isMinifyEnabled = false; proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro") } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }

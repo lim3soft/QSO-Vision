@@ -21,6 +21,14 @@ marked as reconstructed do not represent a preserved historical source tree.
 - Fixed the landscape reparenting crash by capturing views before moving them.
 - Added Apache-2.0 project licensing and third-party license documentation.
 
+## 2026-10-13 — 1.3.3a build 8
+
+- Fixed stale CURRENTLY ON AIR callsigns remaining after PTT ended.
+- Live status now requires BrandMeister's active-row marker and a Last Heard
+  timestamp no older than 30 seconds.
+- Removed text-based `active/on air` inference, which could misclassify stale
+  rows as live.
+
 ## 2026-10-12 — 1.3.3 build 7
 
 - Added resilient BrandMeister Last Heard table and column discovery after DOM changes.
