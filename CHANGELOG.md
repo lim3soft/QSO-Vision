@@ -24,6 +24,7 @@ marked as reconstructed do not represent a preserved historical source tree.
 ## 2026-10-13 — 1.3.3a build 8
 
 - Fixed stale CURRENTLY ON AIR callsigns remaining after PTT ended.
+- Improved UI layout and compact controls for portrait and landscape modes.
 - Live status now requires BrandMeister's active-row marker and a Last Heard
   timestamp no older than 30 seconds.
 - Removed text-based `active/on air` inference, which could misclassify stale

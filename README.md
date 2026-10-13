@@ -14,21 +14,22 @@ status, changes, and APK downloads.
 | 1.3.1 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.1.apk) |
 | 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
 | 1.3.3 build 7 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3-build7.apk) |
-| 1.3.3a build 8 | APK pending upload |
+| 1.3.3a build 8 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3a-build8.apk) |
 
 ## Screenshots
 
-Captured with TG 91 active:
+Captured with TG 91 active in QSO Vision `1.3.3a`:
 
 | Portrait | Landscape |
 |---|---|
-| ![QSO Vision TG 91 portrait](docs/screenshots/qso-vision-tg91-portrait.png) | ![QSO Vision TG 91 landscape](docs/screenshots/qso-vision-tg91-landscape.png) |
+| ![QSO Vision 1.3.3a TG 91 portrait](docs/screenshots/qso-vision-1.3.3a-tg91-portrait.png) | ![QSO Vision 1.3.3a TG 91 landscape](docs/screenshots/qso-vision-1.3.3a-tg91-landscape.png) |
 
 ## Release changelog
 
 ### 1.3.3a build 8
 
 - Fixed stale CURRENTLY ON AIR callsigns remaining after PTT ended.
+- Improved UI layout and compact controls for portrait and landscape modes.
 - Live status now requires a recent BrandMeister active-row marker and
   timestamp; old rows are displayed only in history.
 
