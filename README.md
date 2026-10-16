@@ -27,9 +27,9 @@ Captured with TG 91 active and a live random callsign shown in QSO Vision 1.3.5:
 | ![QSO Vision 1.3.5 TG 91 portrait](docs/screenshots/qso-vision-1.3.5-tg91-portrait-final.png) | ![QSO Vision 1.3.5 TG 91 landscape](docs/screenshots/qso-vision-1.3.5-tg91-landscape-final.png) |
 
 
-## Tips
+## Buy Me Coffee
 
-Tip me if you appreciate my work (https://ko-fi.com/limesoft)
+Buy me coffee me if you appreciate my work (https://ko-fi.com/limesoft)
 
 ## Release changelog
 
