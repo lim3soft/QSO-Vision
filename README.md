@@ -17,6 +17,7 @@ status, changes, and APK downloads.
 | 1.3.3a build 8 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3a-build8.apk) |
 | 1.3.5 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.5.apk) |
 
+
 ## Screenshots
 
 Captured with TG 91 active and a live random callsign shown in QSO Vision 1.3.5:
@@ -24,6 +25,11 @@ Captured with TG 91 active and a live random callsign shown in QSO Vision 1.3.5:
 | Portrait | Landscape |
 |---|---|
 | ![QSO Vision 1.3.5 TG 91 portrait](docs/screenshots/qso-vision-1.3.5-tg91-portrait-final.png) | ![QSO Vision 1.3.5 TG 91 landscape](docs/screenshots/qso-vision-1.3.5-tg91-landscape-final.png) |
+
+
+## Tips
+
+Tip me if you appreciate my work (https://ko-fi.com/limesoft)
 
 ## Release changelog
 
