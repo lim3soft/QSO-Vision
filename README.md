@@ -21,7 +21,7 @@ status, changes, and APK downloads.
 
 Captured with TG 91 active and a live random callsign shown in QSO Vision 1.3.5:
 
-| Portrait — live China BD3RSS | Landscape — live New Zealand 2E0XHG |
+| Portrait | Landscape |
 |---|---|
 | ![QSO Vision 1.3.5 TG 91 portrait](docs/screenshots/qso-vision-1.3.5-tg91-portrait-final.png) | ![QSO Vision 1.3.5 TG 91 landscape](docs/screenshots/qso-vision-1.3.5-tg91-landscape-final.png) |
 
