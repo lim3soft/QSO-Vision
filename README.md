@@ -23,7 +23,7 @@ Captured with TG 91 active in QSO Vision:
 
 | Portrait | Landscape |
 |---|---|
-| ![QSO Vision 1.3.5 TG 91 portrait](docs/screenshots/qso-vision-1.3.5-tg91-portrait.png) | ![QSO Vision 1.3.5 TG 91 landscape](docs/screenshots/qso-vision-1.3.5-tg91-landscape.png) |
+| ![QSO Vision 1.3.5 TG 91 portrait](docs/screenshots/qso-vision-1.3.5-tg91-portrait-final.png) | ![QSO Vision 1.3.5 TG 91 landscape](docs/screenshots/qso-vision-1.3.5-tg91-landscape-final.png) |
 
 ## Release changelog
 
