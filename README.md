@@ -15,6 +15,7 @@ status, changes, and APK downloads.
 | 1.3.2a build 6 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.2a-build6.apk) |
 | 1.3.3 build 7 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3-build7.apk) |
 | 1.3.3a build 8 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.3a-build8.apk) |
+| 1.3.5 | [Download](https://github.com/lim3soft/QSO-Vision/blob/main/artifacts/QSO-Vision-1.3.5.apk) |
 
 ## Screenshots
 
