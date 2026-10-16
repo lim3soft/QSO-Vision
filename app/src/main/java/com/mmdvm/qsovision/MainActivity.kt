@@ -1,6 +1,7 @@
 package com.mmdvm.qsovision
 
 import android.annotation.SuppressLint
+import android.animation.ValueAnimator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clock: TextView
     private lateinit var wave: ActivityWaveView
     private lateinit var history: LinearLayout
+    private lateinit var historyTitle: TextView
     private lateinit var audioStatus: TextView
     private lateinit var muteButton: MaterialButton
     private lateinit var historyButton: MaterialButton
@@ -61,8 +63,9 @@ class MainActivity : AppCompatActivity() {
     private val dimTimes = intArrayOf(0, 30, 60, 300, -1)
     private val dimLabels = arrayOf("Always on", "30 seconds", "1 minute", "5 minutes", "Smart • 10 seconds of silence")
     private var lastHeard: WebView? = null
-    private data class Heard(val call: String, val country: String, val tg: Int, val age: String, val duration: String, val active: Boolean)
+    private data class Heard(val call: String, val country: String, val tg: Int, val age: String, val duration: String, val active: Boolean, val timestamp: Long)
     private val heardHistory = ArrayDeque<Heard>()
+    private val capturedHistoryTimes = mutableMapOf<String, Long>()
     private var liveHeard: Heard? = null
     private var renderedHistory = ""
     private var metadataFailure: String? = null
@@ -126,9 +129,9 @@ class MainActivity : AppCompatActivity() {
     }
     private fun panel() = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        setPadding(dp(12), dp(12), dp(12), dp(12))
-        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(0xff133953.toInt(), 0xff0d2438.toInt())).apply {
-            cornerRadius = dp(20).toFloat(); setStroke(dp(1), 0xff226583.toInt())
+        setPadding(dp(18), dp(16), dp(18), dp(16))
+        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(0xff12384a.toInt(), 0xff10243a.toInt())).apply {
+            cornerRadius = dp(24).toFloat(); setStroke(dp(1), 0xff247b96.toInt())
         }
     }
 
@@ -192,11 +195,11 @@ class MainActivity : AppCompatActivity() {
         }
         lastHeard?.let { playerHost.addView(it, FrameLayout.LayoutParams(-1, -1)) }
         val column = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(16), dp(16), dp(16))
-            setBackgroundColor(0xff06111f.toInt())
+            orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(16))
+            background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(0xff0b2437.toInt(), 0xff06111f.toInt()))
         }
-        val titleView = label("◉ QSO VISION", 26f, Color.CYAN)
-        val authorView = label("by 9W3SPY", 13f, 0xff93b8c8.toInt())
+        val titleView = label("◉  QSO VISION", 23f, 0xffd9fbff.toInt()).apply { setTypeface(typeface, Typeface.BOLD) }
+        val authorView = label("by 9W3SPY", 11f, 0xffff8fd8.toInt()).apply { setTypeface(typeface, Typeface.BOLD_ITALIC) }
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -206,6 +209,9 @@ class MainActivity : AppCompatActivity() {
             addView(authorView, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(10) })
         }
         column.addView(header)
+        column.addView(label("BRANDMEISTER  •  SINGLE TALKGROUP MONITOR", 10f, 0xff8eb6c8.toInt()).apply {
+            letterSpacing = .12f; setPadding(dp(10), 0, dp(10), dp(10))
+        })
         selector = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         input = EditText(this).apply { inputType = 2; setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textPx(16f)); setPadding(dp(4), 0, dp(4), 0); setSingleLine(); setText(vm.selected.value.toString()); hint = "TG"; contentDescription = "Talkgroup number" }
         selector.addView(input, LinearLayout.LayoutParams(0, dp(56), 1f))
@@ -228,10 +234,10 @@ class MainActivity : AppCompatActivity() {
         addControl(iconButton("Exit app", R.drawable.ic_exit) { exitApp() })
         column.addView(selector)
         val card = panel()
-        headline = label("", 68f).apply { gravity = Gravity.CENTER; maxLines = 1; setTypeface(typeface, Typeface.BOLD) }
+        headline = label("", 64f).apply { gravity = Gravity.CENTER; maxLines = 1; setTypeface(typeface, Typeface.BOLD) }
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(headline,
             textPx(18f).roundToInt(), textPx(72f).roundToInt(), 2, android.util.TypedValue.COMPLEX_UNIT_PX)
-        card.addView(headline, LinearLayout.LayoutParams(-1, dp(130)))
+        card.addView(headline, LinearLayout.LayoutParams(-1, dp(116)))
         details = label("").apply { gravity = Gravity.CENTER }; card.addView(details)
         clock = label("", 24f, Color.CYAN).apply { gravity = Gravity.CENTER }; card.addView(clock)
         wave = ActivityWaveView(this); card.addView(wave, LinearLayout.LayoutParams(-1, dp(60)))
@@ -246,7 +252,7 @@ class MainActivity : AppCompatActivity() {
         })
         compactToggle.bringToFront()
         column.addView(cardContainer)
-        metadataStatus = label(metadataFailure ?: "Connecting to BrandMeister", 12f, Color.CYAN)
+        metadataStatus = label(metadataFailure ?: "Connecting to BrandMeister", 11f, 0xff65e8f4.toInt())
         column.addView(metadataStatus)
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val network = BrandMeisterConnectivity.check()
@@ -270,7 +276,11 @@ class MainActivity : AppCompatActivity() {
         }
         val historyCard = panel()
         val historyHeader = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        historyHeader.addView(label("RECENT QSO HISTORY", 16f, Color.CYAN), LinearLayout.LayoutParams(0, -2, 1f))
+        historyTitle = label("◷  QSO HISTORY - TG ${vm.selected.value}", 16f, 0xffd9fbff.toInt()).apply {
+            setTypeface(typeface, Typeface.BOLD)
+            letterSpacing = .04f
+        }
+        historyHeader.addView(historyTitle, LinearLayout.LayoutParams(0, -2, 1f))
         historyButton = compactButton(historyLimit.toString(), "History records: $historyLimit. Tap to change") { chooseHistorySize() }.apply {
             describeIcon(this, "History records: $historyLimit. Tap to change")
         }
@@ -310,6 +320,17 @@ class MainActivity : AppCompatActivity() {
             page.addView(portraitRoot, FrameLayout.LayoutParams(-1, -1))
         }
         setContentView(page)
+        titleView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 2600L
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            addUpdateListener { animation ->
+                val glow = animation.animatedValue as Float
+                titleView.setShadowLayer(textPx(3f + glow * 8f), 0f, 0f, 0xff00e5ff.toInt())
+            }
+            start()
+        }
         applyCompactMode()
         applySystemBars()
         syncAudio()
@@ -338,11 +359,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // Dialogs, popups and the soft keyboard can temporarily reveal system
+        // bars in landscape. Re-apply immersive mode when the dashboard
+        // regains focus, while leaving portrait behavior unchanged.
+        if (hasFocus) window.decorView.post { applySystemBars() }
+    }
+
     private fun format(pattern: String, time: Long = System.currentTimeMillis()) =
         SimpleDateFormat(pattern, Locale.getDefault()).format(Date(time))
 
     private fun render() {
         val active = liveHeard
+        if (::historyTitle.isInitialized) historyTitle.text = "◷  QSO HISTORY - TG ${vm.selected.value}"
         headline.text = active?.call ?: "TG ${vm.selected.value}"
         headline.setTextColor(if (active != null) 0xffff8a18.toInt() else Color.WHITE)
         headline.setShadowLayer(if (active != null) dp(5).toFloat() else 0f, 0f, 0f, 0xffff6500.toInt())
@@ -359,7 +389,23 @@ class MainActivity : AppCompatActivity() {
         renderedHistory = signature
         history.removeAllViews()
         if (heardHistory.isEmpty()) history.addView(label("Waiting for BrandMeister Last Heard activity for TG ${vm.selected.value}..."))
-        heardHistory.take(historyLimit).forEach { e -> history.addView(label("${e.country} ${e.call} • TG ${e.tg}\nAge ${e.age} • Duration ${e.duration}${if (e.active) " • ON AIR" else ""}", 15f, if (e.active) 0xffff6a00.toInt() else Color.WHITE)) }
+        heardHistory.take(historyLimit).forEach { e ->
+            val bubble = panel().apply {
+                setPadding(dp(12), dp(10), dp(12), dp(10))
+                background = GradientDrawable().apply {
+                    cornerRadius = dp(12).toFloat()
+                    setColor(0xff102b40.toInt())
+                    setStroke(dp(1), 0xff245873.toInt())
+                }
+            }
+            bubble.addView(label("${e.country}  ${e.call}", 15f, if (e.active) 0xffff8a18.toInt() else Color.WHITE).apply {
+                setTypeface(typeface, Typeface.BOLD); setPadding(0, 0, 0, dp(3))
+            })
+            bubble.addView(label("${format("dd/MM/yyyy HH:mm:ss", e.timestamp)}  •  TG ${e.tg}  •  ${e.duration.ifBlank { "—" }}${if (e.active) "  •  ON AIR" else ""}", 12f, 0xff9bc9dc.toInt()).apply {
+                setPadding(0, 0, 0, 0)
+            })
+            history.addView(bubble, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) })
+        }
     }
 
     private fun pollLastHeard() {
@@ -382,7 +428,16 @@ class MainActivity : AppCompatActivity() {
                         code.map { String(Character.toChars(0x1F1E6 + it.code - 'A'.code)) }.joinToString("") +
                             " " + Locale("", code).displayCountry
                     } else "🌐"
-                    entries.add(Heard(r.optString("call"), country, tg, r.optString("age"), r.optString("duration"), r.optBoolean("active")))
+                    val call = r.optString("call")
+                    val duration = r.optString("duration")
+                    // BrandMeister's relative age changes on every poll. Keep
+                    // the first observed timestamp for each history row so
+                    // the UI remains a static event time like the web version.
+                    val historyKey = "$tg|$call|$duration|$i"
+                    val capturedAt = capturedHistoryTimes.getOrPut(historyKey) {
+                        r.optLong("timestamp", System.currentTimeMillis())
+                    }
+                    entries.add(Heard(call, country, tg, r.optString("age"), duration, r.optBoolean("active"), capturedAt))
                 }
                 liveHeard = entries.firstOrNull { it.active }
                 // Replace the source snapshot, avoiding duplicates as relative ages change.
@@ -486,7 +541,7 @@ class MainActivity : AppCompatActivity() {
     private fun selectTalkgroup() {
         val tg = input.text.toString().trim().toIntOrNull()
         if (tg == null || tg !in 1..16777215) { input.error = "Enter a talkgroup from 1 to 16777215"; return }
-        heardHistory.clear(); liveHeard = null
+        heardHistory.clear(); capturedHistoryTimes.clear(); liveHeard = null
         if (lastHeard != null) metadataFailure = null
         metadataStarted = SystemClock.elapsedRealtime()
         vm.select(tg)

@@ -27,6 +27,14 @@ Captured with TG 91 active in QSO Vision:
 
 ## Release changelog
 
+### 1.3.5
+
+- Refreshed the Android UI using the web dashboard visual language.
+- Added a slow animated glow to the QSO Vision title and removed the Local Bridge badge.
+- Fixed landscape system bars remaining visible after dialogs, menus, or text input.
+- Redesigned QSO History entries as static timestamped bubbles with callsign, country, talkgroup, and duration.
+- Fixed history timestamps so they remain fixed after the QSO is captured.
+
 ### 1.3.3a build 8
 
 - Fixed stale CURRENTLY ON AIR callsigns remaining after PTT ended.

@@ -80,7 +80,7 @@
       // after PTT ends. Only the page's active-row marker plus a recent
       // Last Heard timestamp qualifies as CURRENTLY ON AIR.
       const active = row.classList.contains('lh-row-active') && secondsSinceHeard(age) <= 30;
-      result.rows.push({call, country, tg: wanted, age, duration: text(durationIndex, ''), active});
+      result.rows.push({call, country, tg: wanted, age, timestamp: Date.now() - Math.min(secondsSinceHeard(age), 86400) * 1000, duration: text(durationIndex, ''), active});
     });
     result.status = 'BrandMeister • TG ' + wanted + ' • ' + result.rows.length + ' records';
   } catch (e) { result.status = 'Metadata error: ' + e.message; }

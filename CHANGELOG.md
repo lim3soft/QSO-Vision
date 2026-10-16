@@ -1,5 +1,13 @@
 # QSO Vision changelog
 
+## 2026-10-16 — 1.3.5
+
+- Refreshed the Android UI using the web dashboard visual language.
+- Added a slow animated glow to the QSO Vision title and removed the Local Bridge badge.
+- Fixed landscape system bars remaining visible after dialogs, menus, or text input.
+- Redesigned QSO History entries as static timestamped bubbles with callsign, country, talkgroup, and duration.
+- Fixed history timestamps so they remain fixed after the QSO is captured.
+
 For the version-to-source and APK mapping, see [docs/VERSION-MAP.md](docs/VERSION-MAP.md).
 
 This changelog is reconstructed from the retained Codex project trace,
